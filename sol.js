@@ -567,6 +567,7 @@
                     e.chainTo( this );
                     e.appendTo( this );
                 },
+                
                 frame:function(){},
                 loop:function(ln){
                     var target = this;
@@ -924,7 +925,7 @@
         if( _pre_loading == _pre_loaded && _ready == false ){
             _ready_body();
             _ready = true;
-            console.log( _pre_loaded + '/' + _pre_loading );
+            //console.log( _pre_loaded + '/' + _pre_loading );
         }else{
             setTimeout( _ready_waiting , 100 );
         }
