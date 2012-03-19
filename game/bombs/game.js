@@ -55,9 +55,9 @@ window.onload = function(){
                                                field.changeSurface( "game" );
                                            });
         
-        start_surface.prepear( start_title );
-        start_surface.prepear( start_expression );
-        start_surface.prepear( start_button );
+        start_surface.prepare( start_title );
+        start_surface.prepare( start_expression );
+        start_surface.prepare( start_button );
 
         // game core
         var score = 0;
@@ -179,8 +179,8 @@ window.onload = function(){
 
         var load_map = new Map();
         var balls_controller = new Balls();
-        game_surface.prepear( load_map );
-        game_surface.prepear( balls_controller );
+        game_surface.prepare( load_map );
+        game_surface.prepare( balls_controller );
 
         // end surface
         var end_score = new HR("score<br />" , 125,100 );
@@ -192,8 +192,8 @@ window.onload = function(){
                                           });
 
         end_score.css('z_index',200);
-        end_surface.prepear( end_score );
-        end_surface.prepear( next_button );
+        end_surface.prepare( end_score );
+        end_surface.prepare( next_button );
         // ---
 
         field.has(menu_bar);

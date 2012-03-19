@@ -235,7 +235,7 @@
             onRelease:function(f){
                 ( typeof f == "function" ) && ( this._on_releases[this._on_releases.length] = f );
             },
-            prepearFrames:function(){ 
+            prepareFrames:function(){ 
                 this._on_frames = [];
                 this._on_pushes = [];
                 this._on_releases = [];
@@ -509,7 +509,7 @@
             this.onFrame = im.onFrame,
             this.onTouch = im.onTouch,
             //this.onRelease = im.onRelease,
-            this.prepearFrames = im.prepearFrames;
+            this.prepareFrames = im.prepareFrames;
             this.loop = im.loop;
             this._frame = im._frame;
             this.chainTo = im.chainTo;
@@ -557,7 +557,7 @@
                 initialize:function(){
                     this.applyStyles();
                     this.setFieldEvents();
-                    this.prepearFrames();
+                    this.prepareFrames();
                     this._surfaces = [];
                     this._pre_surfaces = {};
                     this._surface_name = "start";
@@ -616,7 +616,7 @@
                     this._freeze = false;
                     this.applyStyles();
                     this.setEvents();
-                    this.prepearFrames();
+                    this.prepareFrames();
                     this.rotate(0);
                 },
                 freeze:function(){
@@ -695,7 +695,7 @@
                     this._inited = false;
                     this._go_flg = true;
                 },
-                prepear:function(e){
+                prepare:function(e){
                     this._elements[this._elements.length] = e;
                 },
                 loop:function(ln){
