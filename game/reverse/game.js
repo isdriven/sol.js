@@ -134,8 +134,9 @@ window.onload = function(){
                         break;
                     case BOTTOM_LEFT:
                         if( this.number > 55 || ((this.number+1) % 8 == 0 )){
-                            t_number = this.number + 9;
+                            return NOT_CELL;
                         }
+                        t_number = this.number + 9;
                         break;
                     case BOTTOM:
                         if( this.number > 55 ){
