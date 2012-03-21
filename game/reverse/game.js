@@ -145,8 +145,9 @@ window.onload = function(){
                         break;
                     case BOTTOM_RIGHT:
                         if( this.number > 55 || ((this.number+1)%8 == 0 )){
-                            t_number = this.number + 7;
+                            return NOT_CELL;
                         }
+                        t_number = this.number + 7;
                         break;
                     case RIGHT:
                         if( this.number == 0 || this.number % 8 == 0 ){
@@ -181,7 +182,6 @@ window.onload = function(){
                     this.turns = BLACK;
                 },
                 pressed:function(number){
-                    console.log( number );
                     var dir = this.checkMobility(number , this.turns);
                     if( dir == 0 ){
                         return false;
