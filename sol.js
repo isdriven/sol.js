@@ -677,10 +677,10 @@
             _label_class,
             {
                 init:function( str , css , fn ){
-                    this.style = sol.mixin( this.style , css );
+                    (typeof css == 'object' ) && ( this.style = sol.mixin( this.style , css ));
                     this.initialize();
                     this.setText( str );
-                    this.onTouch(fn);
+                    (typeof fn == 'function' ) && (this.onTouch(fn));
                 },
             }),
 
