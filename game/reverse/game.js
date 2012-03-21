@@ -109,27 +109,49 @@ window.onload = function(){
                     var t_number = -1;
                     switch( direction ){
                     case TOP_RIGHT:
+                        if( this.number < 8 || ( this.number % 8 ) == 0 ){
+                            return NOT_CELL;
+                        }
                         t_number = this.number - 9;
                         break;
                     case TOP:
+                        if( this.number < 8 ){
+                            return NOT_CELL;
+                        }
                         t_number = this.number - 8;
                         break;
                     case TOP_LEFT:
+                        if( this.number < 8 || ( ((this.number+1) % 8 ) == 0 )){
+                            return NOT_CELL;
+                        }
                         t_number = this.number - 7;
                         break
                     case LEFT:
+                        if( ( this.number+1 ) % 8 == 0 ){
+                            return NOT_CELL;
+                        }
                         t_number = this.number + 1;
                         break;
                     case BOTTOM_LEFT:
-                        t_number = this.number + 9;
+                        if( this.number > 55 || ((this.number+1) % 8 == 0 )){
+                            t_number = this.number + 9;
+                        }
                         break;
                     case BOTTOM:
+                        if( this.number > 55 ){
+                            return NOT_CELL;
+                        }
                         t_number = this.number + 8;
                         break;
                     case BOTTOM_RIGHT:
-                        t_number = this.number + 7;
+                        if( this.number > 55 || ((this.number+1)%8 == 0 )){
+                            t_number = this.number + 7;
+                        }
                         break;
                     case RIGHT:
+                        if( this.number == 0 || this.number % 8 == 0 ){
+                            return NOT_CELL;
+                        }
                         t_number = this.number -1;
                         break;
                     }
@@ -159,6 +181,7 @@ window.onload = function(){
                     this.turns = BLACK;
                 },
                 pressed:function(number){
+                    console.log( number );
                     var dir = this.checkMobility(number , this.turns);
                     if( dir == 0 ){
                         return false;
@@ -174,7 +197,6 @@ window.onload = function(){
                     if( !this.hasMorePoint( this.turns ) ){
                         field.changeSurface( "end" );
                     }
-                    console.log( this.hasMorePoint(this.turns) );
                     if( count[0] > count[1] ){
                         end_score.setText( 'WHITE WIN' );
                         end_score.css('x' , 78 );
