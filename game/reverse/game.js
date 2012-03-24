@@ -17,13 +17,36 @@ window.onload = function(){
         var start_surface = new sol.surface(SCREEN_WIDTH,SCREEN_HEIGHT);
         var game_surface = new sol.surface(SCREEN_WIDTH,SCREEN_HEIGHT);
         var end_surface = new sol.surface(SCREEN_WIDTH,SCREEN_HEIGHT);
+        var pass_surface = new sol.surface(SCREEN_WIDTH,SCREEN_HEIGHT);
+
+        // base label
+        var GreenBoard = sol.class(
+            sol.base,
+            {
+                style:{width:200,height:100,background_color:'green',border:'1px solid skyblue',x:60,y:160,border_radius:10},
+            });
+        var HR = sol.class(sol.label,{style:{font_size:30}});
+        var HR2 = sol.class(sol.label,{style:{font_size:12}});
+
+        var notice_board = new GreenBoard();
+        var notice_pass = new HR("WHITE PASS",5,5);
+        var ok_button = new sol.button( "ok" ,
+                                        {background_color:'green',color:'white',x:70,y:50,border_radius:3,padding:5,padding_left:20,padding_right:20,border:'1px solid #ddd'},
+                                        function(){
+                                            field.changeSurface( "game" );
+                                            pass_surface.hide();
+                                        });
+        notice_board.has( notice_pass );
+        notice_board.has( ok_button );
+        
+        pass_surface.has( notice_board );
         
         // Menu bar ( score bar )
         var Menubar = sol.class(
             sol.base,
             {style:{border_radius:5,z_index:20,background_color:'black',color:'white',x:0,y:0,width:320,height:30,border:'1px solid #ddd'}});
         var menu_bar = new Menubar();
-        var title = new sol.label('REVERSE' , 5 , 5 ) ;
+        var title = new sol.label('REVERSE' , 5 , 5 );
         var push_button = new sol.button( "reload" ,
                                           { background_color:'black', color:'white',x:270,y:0,border_radius:3, padding:5, z_index:100,border:'1px solid #ddd'}, 
                                           function(){
@@ -33,14 +56,12 @@ window.onload = function(){
         menu_bar.has( title );
 
         // start surface
-        var HR = sol.class(sol.label,{style:{font_size:30}});
-        var HR2 = sol.class(sol.label,{style:{font_size:12}});
 
         var start_title = new HR('REVERSE', 80 , 100 );
         var start_expression = new HR2('二人でやるリバーシ',95,140);
         var start_button = new sol.button( "START" , 
                                            { background_color:'#ccc',color:'black',x:110,y:200,border_radius:10,
-                                             z_index:100,border:'1px solid black',padding_left:20,padding_right:20,},
+                                             z_index:100,border:'1px solid black',padding:5,padding_left:20,padding_right:20},
                                            function(){
                                                start_surface.hide();
                                                field.changeSurface( "game" );
@@ -108,8 +129,8 @@ window.onload = function(){
                 getCellNumber:function(direction){
                     var t_number = -1;
                     switch( direction ){
-                    case TOP_RIGHT:
-                        if( this.number < 8 || ( this.number % 8 ) == 0 ){
+                    case TOP_LEFT:
+                        if( this.number < 8 || this.number == 0 || ( this.number % 8 ) == 0 ){
                             return NOT_CELL;
                         }
                         t_number = this.number - 9;
@@ -120,20 +141,20 @@ window.onload = function(){
                         }
                         t_number = this.number - 8;
                         break;
-                    case TOP_LEFT:
+                    case TOP_RIGHT:
                         if( this.number < 8 || ( ((this.number+1) % 8 ) == 0 )){
                             return NOT_CELL;
                         }
                         t_number = this.number - 7;
                         break
-                    case LEFT:
-                        if( ( this.number+1 ) % 8 == 0 ){
+                    case RIGHT:
+                        if( (this.number+1) % 8 == 0 ){
                             return NOT_CELL;
                         }
                         t_number = this.number + 1;
                         break;
-                    case BOTTOM_LEFT:
-                        if( this.number > 55 || ((this.number+1) % 8 == 0 )){
+                    case BOTTOM_RIGHT:
+                        if( this.number > 55 || (this.number+1) % 8 == 0 ){
                             return NOT_CELL;
                         }
                         t_number = this.number + 9;
@@ -144,17 +165,17 @@ window.onload = function(){
                         }
                         t_number = this.number + 8;
                         break;
-                    case BOTTOM_RIGHT:
-                        if( this.number > 55 || ((this.number+1)%8 == 0 )){
+                    case BOTTOM_LEFT:
+                        if( this.number > 55 || (this.number%8 == 0 )){
                             return NOT_CELL;
                         }
                         t_number = this.number + 7;
                         break;
-                    case RIGHT:
-                        if( this.number == 0 || this.number % 8 == 0 ){
+                    case LEFT:
+                        if(this.number % 8 == 0 ){
                             return NOT_CELL;
                         }
-                        t_number = this.number -1;
+                        t_number = this.number - 1;
                         break;
                     }
                     if( t_number < 0 || t_number > 63 ){
@@ -171,11 +192,13 @@ window.onload = function(){
                 style:{ x : 20 , y : 90 },
                 init:function(){
                     this.initialize();
-                    
                     for( var i = 0 ; i < 64 ; ++i ){
                         this.has( new Cell( (i%8)*35 , parseInt(i/8)*35 ) );
                         this.ref(i).number = i;
                     }
+                    //test
+                    //this.ref(14).put( WHITE );
+                    //this.ref(21).put( WHITE );
                     this.ref(27).put( WHITE );
                     this.ref(36).put( WHITE );
                     this.ref(28).put( BLACK );
@@ -197,16 +220,30 @@ window.onload = function(){
 
                     if( !this.hasMorePoint( this.turns ) ){
                         field.changeSurface( "end" );
-                    }
-                    if( count[0] > count[1] ){
-                        end_score.setText( 'WHITE WIN' );
-                        end_score.css('x' , 78 );
-                    }else if( count[0] < count[1] ){
-                        end_score.setText( 'BLACK WIN' );
-                        end_score.css('x' , 78 );
-                    }else{
-                        end_score.setText( 'DRAW' );
-                        end_score.css('x' , 115 );
+                        if( this.hasMorePoint( this.turns*-1)){
+                            if( this.turns == WHITE ){
+                                notice_pass.setText('WHITE PASS');
+                                field.changeSurface( "pass" );
+                                pass_surface.show();
+                            }else{
+                                notice_pass.setText('BLACK PASS');
+                                field.changeSurface( "pass" );
+                                pass_surface.show();
+                            }
+                            this.turns = -1*this.turns;
+                            pointlabel.setColor( this.turns );
+                        }else{
+                            if( count[0] > count[1] ){
+                                end_score.setText( 'WHITE WIN' );
+                                end_score.css('x' , 78 );
+                            }else if( count[0] < count[1] ){
+                                end_score.setText( 'BLACK WIN' );
+                                end_score.css('x' , 78 );
+                            }else{
+                                end_score.setText( 'DRAW' );
+                                end_score.css('x' , 115 );
+                            }
+                        }
                     }
                 },
                 checkMobility:function( number , turn ){
@@ -361,11 +398,6 @@ window.onload = function(){
         game_surface.prepare( scoreboard );
 
         // end surface
-        var GreenBoard = sol.class(
-            sol.base,
-            {
-                style:{width:200,height:100,background_color:'green',border:'1px solid skyblue',x:60,y:160,border_radius:10},
-            });
         var green_board = new GreenBoard();
         var end_score = new HR("" , 125,185 );
 
@@ -375,7 +407,7 @@ window.onload = function(){
         // ---
 
         field.has(menu_bar);
-        field.addSurface({ "start":start_surface , "game":game_surface , "end":end_surface });
+        field.addSurface({ "start":start_surface , "game":game_surface , "end":end_surface , "pass":pass_surface});
         field.setStartSurface("start");
 
         sol.loop( function(t){
