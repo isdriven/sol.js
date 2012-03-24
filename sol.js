@@ -139,11 +139,13 @@
             _extend:function( parent , child ){
                 var f = function(){
                     _fn.mixin( this , child );
+                    /*
                     _fn.defineUnenum( this , 'super' , function(){
                         if( typeof parent.init == 'function'){
                             parent.init.apply( this , arguments );
                         }
                     });
+                     */
                     if( typeof this.init == 'function' ){
                         this.init.apply( this , arguments );
                     }
@@ -205,14 +207,16 @@
     _fn.defineUnenum( Object.prototype , "each" , function( callback , thisobj ){
         var ret = [];
         for( var e in this ){
-            ret.push( callback.call( thisobj , e , this[e] ) );
+            //ret.push( callback.call( thisobj , e , this[e] ) );
+            ret[ret.length] = callback.call( thisobj, e , this[e] );
         }
         return ret;
     } );
     _fn.defineUnenum( Array.prototype , "each"  , function( callback , thisobj ){
         var ret = [];
         for( var i = 0 , l = this.length ; i < l ; ++i ){
-            ret.push( callback.call( thisobj , this[i] , i  ) );
+            //ret.push( callback.call( thisobj , this[i] , i  ) );
+            ret[ret.length] = callback.call( thisobj , this[i] , i );
         }
         return ret;
     });
@@ -600,6 +604,7 @@
         _base_class = _fn.class(
             __class,
             {
+                style:{},
                 init:function(){
                     this.initialize();
                 },
@@ -676,7 +681,9 @@
         _button_class = _fn.class( 
             _label_class,
             {
+                style:{},
                 init:function( str , css , fn ){
+                    this.style = {};
                     (typeof css == 'object' ) && ( this.style = sol.mixin( this.style , css ));
                     this.initialize();
                     this.setText( str );
@@ -792,6 +799,7 @@
                     this._e.width = this.full.width;
                     this._e.height = this.full.height;
                     this._ctx = this._e.getContext('2d');
+                    this.ctx = this._ctx;
                 },
                 drawImage:function( name , frame , x , y ){
                     var image = _images[name];
