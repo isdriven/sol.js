@@ -806,6 +806,10 @@
                     var pos = _fn.frame2position( frame , this.cell.width , this.cell.height , image.width , image.height );
                     this._ctx.drawImage( image , pos[0]*-1, pos[1]*-1 , this.cell.width , this.cell.height , x , y , this.cell.width , this.cell.height );
                 },
+                clearAll:function(){
+                    this.ctx.beginPath();
+                    this.ctx.clearRect(0,0,this.full.width,this.full.height);
+                },
             });
 
         _map_class = _fn.class(
@@ -886,8 +890,51 @@
             random : function( s , e ){ 
                 return s + Math.floor( Math.random() * e );
             },
-            getLoopingNumber :function( interval ){ 
-                return sunflower.time % interval;
+            interval :function( interval ){ 
+                return _time % interval == 0 ;
+            },
+            pos2xy:function( position , width ){ // position -> x,y 
+                if( position >= 0 ){
+                    return [ position % width , ~~(position/width) ];
+                }else{
+                    position = position*-1;
+                    return [ (width - (position%width)) , ~~(position/width)*-1];
+                }
+            },
+            createCounter:function(){
+                return {
+                    data:{},
+                    count:function(id){
+                        if( typeof this.data[id] == "undefined" ){
+                            this.data[id] = 1;
+                        }else{
+                            this.data[id]++;
+                        }
+                        return this.data[id];
+                    },
+                    get:function(id){
+                        if( typeof this.data[id] == "undefined" ){
+                            return 0;
+                        }else{
+                            return this.data[id];
+                        }
+                    },
+                    filter:function(fn){
+                        var ret = [];
+                        this.data.each( function(k,v){
+                            if( fn(k,v) ){
+                                ret[ret.length] = k;
+                            }
+                        });
+                        return ret;
+                    },
+                };
+            },
+            xy2pos:function( x,y,width ){
+                return x + ( y * width );
+            },
+            rotateRightAngle:function( x , y , r ){ // r is +1 or -1 ( + is to right )
+                return [ y*(-1*r) , x*r ];
             },
             getRad : function( x , y ){ 
                 return Math.atan2( y , x );
@@ -902,6 +949,9 @@
                 var res = Math.round( _util.rad2deg( _util.getRad( x , y ) ) );
                 if( res < 0 ){ res = 360 + res; }
                 return res;
+            },
+            rad2xy:function( rad  , v ){
+                return [Math.round( Math.sin( rad ) * v ) , Math.round( Math.cos( rad ) * v ) ];
             },
             inRange:function( val , min , max ){ 
                 return ( min <= val ) && ( val <= max );
