@@ -683,7 +683,6 @@
             {
                 style:{},
                 init:function( str , css , fn ){
-                    this.style = {};
                     (typeof css == 'object' ) && ( this.style = sol.mixin( this.style , css ));
                     this.initialize();
                     this.setText( str );
