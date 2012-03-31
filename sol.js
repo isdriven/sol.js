@@ -879,9 +879,7 @@
                 
             }),
 
-        _x = new XMLHttpRequest(),
-
-        _ajaxProcess = function(s,e){ 
+        _ajaxProcess = function(s,e,_x){ 
             return function(){
                 if( _x.readyState == 4 ){
                     if( _x.status == 200 || _x.status == 201 ){
@@ -974,7 +972,8 @@
                 }else{
                     url+='&';
                 }
-                _x.onreadystatechange = _ajaxProcess(s,e);
+                var _x = new XMLHttpRequest();
+                _x.onreadystatechange = _ajaxProcess(s,e,_x);
                 _x.open( 'GET' , url+_util.buildquery(data) , true );
                 _x.send(null);
             },
@@ -986,8 +985,9 @@
                 return ret.join('&');
             },
             post:function(url , data , s , e){
+                var _x = new XMLHttpRequest();
                 _x.open( 'post' , url , true );
-                _x.onreadystatechange = _ajaxProcess(s,e);
+                _x.onreadystatechange = _ajaxProcess(s,e,_x);
                 _x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                 _x.send(_util.buildquery(data));
             },
