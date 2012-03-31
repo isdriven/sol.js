@@ -9,12 +9,12 @@
  *  Url:http://www.sol-js.com
  *  File: core
  *  Javascript Ver: ECMA script 262 5th ~ 
- *  Version: 0.1
+ *  Version: 0.3
  *  
  * 
  *  This is Game Engine for Javascript.
  *  
- *  Version 0.1  for webkit ONLY.
+ *  Version 0.3  for webkit ONLY.
  * 
  *  SUPPORT:
  * 
@@ -810,7 +810,7 @@
                     this.ctx.beginPath();
                     this.ctx.clearRect(0,0,this.full.width,this.full.height);
                 },
-            });
+            }),
 
         _map_class = _fn.class(
             _canvas_class,
@@ -872,12 +872,27 @@
                     
                 },
             }),
-
+    
         _scripter_class = _fn.class(
             _base_class,
             {
                 
-            });
+            }),
+
+        _x = new XMLHttpRequest(),
+
+        _ajaxProcess = function(s,e){ 
+            return function(){
+                if( _x.readyState == 4 ){
+                    if( _x.status == 200 || _x.status == 201 ){
+                        var data = eval( "("+_x.responseText+")" );
+                        s(data);
+                    }else{
+                        e(_x.status,_x.statusText);
+                    }
+                }
+            };
+        };
 
         // utilities
         _util = {
@@ -952,6 +967,29 @@
             },
             rad2xy:function( rad  , v ){
                 return [Math.round( Math.sin( rad ) * v ) , Math.round( Math.cos( rad ) * v ) ];
+            },
+            get:function( url , data , s , e ){
+                if( url.indexOf('?') == -1 ){
+                    url+='?';
+                }else{
+                    url+='&';
+                }
+                _x.onreadystatechange = _ajaxProcess(s,e);
+                _x.open( 'GET' , url+_util.buildquery(data) , true );
+                _x.send(null);
+            },
+            buildquery:function(list){
+                var ret = [];
+                list.each( function(k,v){
+                    ret[ret.length] = k + "=" + v ;
+                });
+                return ret.join('&');
+            },
+            post:function(url , data , s , e){
+                _x.open( 'post' , url , true );
+                _x.onreadystatechange = _ajaxProcess(s,e);
+                _x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                _x.send(_util.buildquery(data));
             },
             inRange:function( val , min , max ){ 
                 return ( min <= val ) && ( val <= max );
@@ -1046,6 +1084,7 @@
     sol.scripter = _scripter_class;
     sol.images = _images;
     sol.util = _util;
+    sol.u = _util;
 })();
 
 
