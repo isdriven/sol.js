@@ -428,6 +428,9 @@
                     this._hacking_frame = [ lifetime , initialize , frame , finalize , 0 ];
                 }
             },
+            isHacking:function(){
+                return this._hacking_frame !== null;
+            },
             createElement:function( node_name ){
                 this._e = _fn.createElement( node_name );
             },
@@ -528,6 +531,7 @@
             this.scale = im.scale;
             this.opacity = im.opacity;
             this.hackFrame = im.hackFrame;
+            this.isHacking = im.isHacking;
             this.getTransform = im.getTransform;
             this.setTransform = im.setTransform;
             this.createElement = im.createElement;
@@ -875,7 +879,76 @@
         _scripter_class = _fn.class(
             _base_class,
             {
-                
+                _background:null,
+                line:1,
+                scripterInitialize:function(has_background){
+                    (typeof has_background == "undefined" ) && ( has_background = true );
+                    this.initialize();
+                    this.css( 'overflow' , 'hidden' );
+                    if( has_background ){
+                        this._background = new sol.base();
+                        this._background.css('width',this.style.width);
+                        this._background.css('height',this.style.height);
+                        this._background.css('x',0);
+                        this._background.css('y',0);
+                        this._background.css('border_radius',this.style.border_radius);
+                        this._background.css('background_color','#ccc');
+                        this._background.opacity( -80 );
+                        this.has( this._background );
+                    }
+                    this._scripter = new sol.base();
+                    var padding_left = 10,
+                        padding_right = 10;
+                    this._scripter.css('width',this.style.width-(padding_left+padding_right));
+                    this._scripter.css('height',this.style.height);
+                    this._scripter.css('padding-left',padding_left);
+                    this._scripter.css('padding-right',padding_right);
+                    this._scripter.css('x',0);
+                    this._scripter.css('y',0);
+                    this._scripter.css('color','white');
+                    this._scripter.css('overflow','hidden');
+                    this._scripter.css('line_height' , '16px' );
+                    this.has( this._scripter );
+                },
+                addText:function(text,speed){ // append text
+                    var len = text.length;
+                    var texter = null;
+                    this.hackFrame( (len+1) , 
+                                  function(){
+                                      texter = _util.createTextChara( text );
+                                  },
+                                  function(t){
+                                      var charas = texter();                                      
+                                      if( charas !== false ){
+                                          this.appendText( charas );
+                                      }
+                                  },
+                                  function(){
+
+                                  });
+                },
+                addNewLine:function(){
+                    var font_size = this._scripter.css('font-size'),
+                        height = this.css('height'),
+                        line_height = this._scripter.css('line-height'),
+                        diff = font_size + ((line_height - font_size) / 2),
+                        max_line = ~~( height/line_height );
+                    this.line++;
+                    if( max_line < this.line ){
+                        this._scripter.css('margin-top' , -1*(line_height*(this.line-max_line)));
+                        this._scripter.css('height' , height+(line_height*(this.line-max_line)));
+                    }
+                    this.appendText('<br />');
+                },
+                clearText:function(){ // clear field
+                    this._scripter._e.innerHTML = "";
+                },
+                appendText:function(text){
+                    this._scripter._e.innerHTML = this._scripter._e.innerHTML + text ;
+                },
+                setTextAlign:function(pos){
+                    this._scripter.css('text-align',pos);
+                },
             }),
 
         _ajaxProcess = function(s,e,_x){ 
