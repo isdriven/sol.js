@@ -17,6 +17,8 @@
  *  Version 0.3  for webkit ONLY.
  * 
  *  SUPPORT:
+ *   iOS safari(webkit)
+ *   safari(webkit)
  * 
  *  TODO:
  *   continuos map class
@@ -139,13 +141,6 @@
             _extend:function( parent , child ){
                 var f = function(){
                     _fn.mixin( this , child );
-                    /*
-                    _fn.defineUnenum( this , 'super' , function(){
-                        if( typeof parent.init == 'function'){
-                            parent.init.apply( this , arguments );
-                        }
-                    });
-                     */
                     if( typeof this.init == 'function' ){
                         this.init.apply( this , arguments );
                     }
@@ -267,7 +262,7 @@
                             v.call(me,ln);
                         });
                     }
-                    /*
+                    /* onRelease, do not neeed?
                     if( this.touched == false  && this._touched == true ){
                         this._touched = false;
                         this._on_releases.each( function(v){
