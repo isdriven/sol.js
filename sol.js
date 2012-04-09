@@ -959,7 +959,9 @@
             };
         };
 
+
         // utilities
+    
         _util = {
             redirect:function(url){
                 location.href = url;
@@ -1058,6 +1060,76 @@
                 _x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                 _x.send(_util.buildquery(data));
             },
+            jsonpAccess:function(url,data){
+                
+            },
+            getLocal:function(name,def){
+                if( typeof localStorage[name] == "undefined" ){
+                    return def;
+                }else{
+                    return localStorage[name];
+                }
+            },
+            setLocal:function(name,value){
+                localStorage[name] = value;
+            },
+            incrementLocal:function(name){
+                var n = _util.getLocal( name , 0 );
+                n++;
+                _util.setLocal( name , n );
+            },
+            createStorage:function(name){ // need json2.js
+                var ret = {
+                    s:{},
+                    get:function(name,def){
+                        if( typeof this.s[name] == "undefined" ){
+                            return def;
+                        }else{
+                            return this.s[name];
+                        }
+                    },
+                    set:function(name,value){
+                        this.s[name] = value;
+                    },
+                    increment:function(name){
+                        var n = this.get(name,0);
+                        n++;
+                        this.set( name , n );
+                    },
+                    save:function(){
+                        _util.setLocal( name , JSON.stringify(this.s) );
+                    },
+                    clear:function(){
+                        this.s = {};
+                    },
+                };
+                var now =  _util.getLocal(name, false);
+                if( now !== false ){
+                    ret.s = JSON.parse( now );
+                }
+                return ret;
+            },
+            /* on testing
+            connectSocket:function(url,data,recieve){
+                var s = new WebSocket(url);
+                s.onopen = function(){
+                    console.log( 'connected' );
+                    s.send( data );
+                    console.log( 'send' );
+                };
+                s.onmessage = function(e){
+                    recieve(e.data);
+                };
+                s.onerror = function(){
+                    console.log( 'web socket error' );
+                };
+                s.onclose = function(){
+                    console.log( 'disconnected' );
+                    console.debug( s );
+                };
+                s.send();
+            },
+             */
             inRange:function( val , min , max ){ 
                 return ( min <= val ) && ( val <= max );
             },
@@ -1139,7 +1211,8 @@
         }
         return false;
     };
-    
+
+    sol.f = _fn;
     sol.field = _field_class;
     sol.base = _base_class;
     sol.sprite = _sprite_class;
