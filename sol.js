@@ -9,12 +9,12 @@
  *  Url:http://www.sol-js.com
  *  File: core
  *  Javascript Ver: ECMA script 262 5th ~ 
- *  Version: 0.3
+ *  Version: 0.5
  *  
  * 
  *  This is Game Engine for Javascript.
  *  
- *  Version 0.3  for webkit ONLY.
+ *  Version 0.5  for webkit ONLY.
  * 
  *  SUPPORT:
  *   iOS safari(webkit)
@@ -262,6 +262,7 @@
                             v.call(me,ln);
                         });
                     }
+
                     /* onRelease, do not neeed?
                     if( this.touched == false  && this._touched == true ){
                         this._touched = false;
@@ -966,6 +967,9 @@
             redirect:function(url){
                 location.href = url;
             },
+            callback:function(url,data){
+                
+            },
             reload:function(){
                 location.reload();
             },
@@ -1062,6 +1066,40 @@
             },
             jsonpAccess:function(url,data){
                 
+            },
+            getParams:function(){ // get GET , hash
+                var ret = {
+                    'hash':location.hash.replace('#' , ''),
+                };
+                var querys = location.search.replace('?' , '').split('&');
+                var params = {};
+                querys.each( function(v){
+                    var param = v.split('=');
+                    params[param[0]] = param[1];
+                });
+                ret.params = params;
+                return ret;
+            },
+            redirectCallBack:function(url,data,method){
+                (typeof method == "undefined" ) && ( method = 'post' );
+                var form = _fn.createElement('form');
+
+                var input = []; 
+
+                form.setAttribute( 'action' , url );
+                form.setAttribute( 'method' , method );
+
+                data.push( {name:'callback_url' , value: location.href } );
+
+                data.each( function(v,i){
+                    input[i] = _fn.createElement('input');
+                    input[i].setAttribute( 'type' , 'hidden' );
+                    input[i].setAttribute( 'name' , v['name'] );
+                    input[i].setAttribute( 'value' , v['value'] );
+                    form.appendChild( input[i] );
+                });
+                
+                form.submit();
             },
             getLocal:function(name,def){
                 if( typeof localStorage[name] == "undefined" ){
