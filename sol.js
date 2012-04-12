@@ -545,27 +545,45 @@
         _field_class = _fn.class(
             __class,
             {
-                style:{
-                    position:'relative',
-                    overflow:'hidden',
-                },
+                style:{},
+                orientation:"portrate",
                 init:function(w,h,s){
                     if( typeof s == 'object'){
                         this.style = _fn.mixin( this.style , s );
                     }
                     this.style.width = w, this.style.height = h;
-                    this._e = doc.body;
                     this.initialize();
                     setTimeout( scrollTo , 100 , 0 , 1 );
+                    doc.body.appendChild( this._e );
+                },
+                setFieldLandscape:function(){
+                    if( this.orientation !== "landscapce" ){
+                        this.orientation = "landscapce";
+                        this.rotate(90); 
+                        if( this.style.height > this.style.width ){
+                            var x_diff = (this.style.height - this.style.width)/2;
+                            this.css('x',~~(this.css('x')) + x_diff);
+                            this.css('y',~~(this.css('y')) - x_diff);
+                        }else{
+                            var y_diff = (this.style.width - this.style.height)/2;
+                            this.css('x',~~(this.css('x')) - y_diff);
+                            this.css('y',~~(this.css('y')) + y_diff);
+                        }
+                    }
                 },
                 initialize:function(){
+                    this.createElement( "div" );
+                    this.style.position = 'absolute';
+                    this.style.opacity = 1;
                     this.applyStyles();
                     this.setFieldEvents();
                     this.prepareFrames();
                     this._surfaces = [];
                     this._pre_surfaces = {};
+                    this._style_cache = {};
                     this._surface_name = "start";
                     this._inited_surfaces = {};
+                    this.rotate(0);
                 },
                 has:function(e){
                     e.chainTo( this );
@@ -1064,9 +1082,6 @@
                 _x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                 _x.send(_util.buildquery(data));
             },
-            jsonpAccess:function(url,data){
-                
-            },
             getParams:function(){ // get GET , hash
                 var ret = {
                     'hash':location.hash.replace('#' , ''),
@@ -1080,7 +1095,7 @@
                 ret.params = params;
                 return ret;
             },
-            redirectCallBack:function(url,data,method){
+            getBack:function(url,callback_url,data,method){
                 (typeof method == "undefined" ) && ( method = 'post' );
                 var form = _fn.createElement('form');
 
@@ -1089,7 +1104,9 @@
                 form.setAttribute( 'action' , url );
                 form.setAttribute( 'method' , method );
 
-                data.push( {name:'callback_url' , value: location.href } );
+                (typeof data == "undefined" ) && ( data = [] );
+ 
+                data.push( {name:'callback_url' , value: callback_url } );
 
                 data.each( function(v,i){
                     input[i] = _fn.createElement('input');
@@ -1098,7 +1115,6 @@
                     input[i].setAttribute( 'value' , v['value'] );
                     form.appendChild( input[i] );
                 });
-                
                 form.submit();
             },
             getLocal:function(name,def){
