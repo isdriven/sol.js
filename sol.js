@@ -9,7 +9,7 @@
  *  Url:http://www.sol-js.com
  *  File: core
  *  Javascript Ver: ECMA script 262 5th ~ 
- *  Version: 0.5
+ *  Version: 0.5.2
  *  
  * 
  *  This is Game Engine for Javascript.
@@ -289,7 +289,7 @@
                     }
                     
                     this._ref.each( function(v){
-                        v._frame(ln);
+                        (typeof v !== "undefined" ) && (typeof v["_frame"] !== "undefined" ) && (v._frame(ln));
                     });
                 }
             },
@@ -395,6 +395,9 @@
                     }
                     this.setTransform( 'scale' , sum );
                 }
+            },
+            setReflection:function(direction){
+                this.setTransform( 'matrix' , '-1, 0, 0, 1, 0, 0');
             },
             opacity:function(o){
                 if( typeof o == "undefined" ){
@@ -533,6 +536,7 @@
             this.createElement = im.createElement;
             this.applyStyles = im.applyStyles;
             this.appendTo = im.appendTo;
+            this.setReflection = im.setReflection;
             // events
             this.setEvents = im.setEvents;
             // field_events
@@ -663,6 +667,13 @@
                         delete this._ref[i];
                     }
                     _fn.removeMe( this._e );
+                },
+                removeAllChildren:function(){
+                    for( var i = 0 , l = this._ref.length ; i < l ; ++i ){
+                        this._ref[i].remove();
+                        delete this._ref[i];
+                    }
+                    this._ref = [];
                 },
                 getChildrenCount:function(){
                     return this._ref.length;
