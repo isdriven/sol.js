@@ -951,6 +951,7 @@
                                   function(){
 
                                   });
+                    return this;
                 },
                 addNewLine:function(){
                     var font_size = this._scripter.css('font-size'),
@@ -1155,6 +1156,7 @@
                     },
                     set:function(name,value){
                         this.s[name] = value;
+                        return this;
                     },
                     increment:function(name){
                         var n = this.get(name,0);
@@ -1166,6 +1168,7 @@
                     },
                     clear:function(){
                         this.s = {};
+                        return this;
                     },
                 };
                 var now =  _util.getLocal(name, false);
@@ -1197,6 +1200,16 @@
              */
             inRange:function( val , min , max ){ 
                 return ( min <= val ) && ( val <= max );
+            },
+            range:function( start , end , step ){
+                (typeof step == "undefined" ) && ( step = 1 );
+                var ret = [];
+                var i = start , l = (end+1);
+                while( i < l ){
+                    ret[ret.length] = i;
+                    i+=step;
+                }
+                return ret;
             },
             createTextLine:function( str ){
                 var c = 0, len = str.length;
