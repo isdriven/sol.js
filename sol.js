@@ -9,7 +9,7 @@
  *  Url:http://www.sol-js.com
  *  File: core
  *  Javascript Ver: ECMA script 262 5th ~ 
- *  Version: 0.5.2
+ *  Version: 0.5.3
  *  
  * 
  *  This is Game Engine for Javascript.
@@ -244,6 +244,7 @@
                 this._touched = false;
                 this._remove_flg = false;
                 this._removed_flg = false;
+                this._ableto_touch = true;
             },
             loop:function(ln){
                 this._frame(ln);
@@ -256,22 +257,12 @@
                     this._on_frames.each( function(v){
                         v.call(me , ln);
                     });
-                    if( this.touched == true ){
+                    if( this.touched == true && this._ableto_touch ){
                         this.touched = false;
                         this._on_pushes.each( function(v){
                             v.call(me,ln);
                         });
                     }
-
-                    /* onRelease, do not neeed?
-                    if( this.touched == false  && this._touched == true ){
-                        this._touched = false;
-                        this._on_releases.each( function(v){
-                            v.call(me,ln);
-                        });
-                    }
-                     */
-
                     if( this._hacking_frame == null ){
                         this.frame(ln);
                     }else{
@@ -443,6 +434,12 @@
                     && ( typeof this._e != "undefined" && this._e != null )
                     && ( _fn.appendChild( parent._e , this._e ));
             },
+            hide:function(){
+                this.css( 'display' , 'none' );
+            },
+            show:function(){
+                this.css( 'display' , 'block' );
+            },
             setEvents:function(){
                 var target = this;
                 if( this._e ){
@@ -537,6 +534,8 @@
             this.applyStyles = im.applyStyles;
             this.appendTo = im.appendTo;
             this.setReflection = im.setReflection;
+            this.hide = im.hide;
+            this.show = im.show;
             // events
             this.setEvents = im.setEvents;
             // field_events
@@ -775,7 +774,11 @@
                     this._repeat;
                     if( this.image !== null ){
                         this._image = _images[this.image];
-                        this.setCellImage( this._image.src );
+                        if( typeof this._image == "undefined" ){
+                            console.log( "No File Loaded : " + this.image );
+                        }else{
+                            this.setCellImage( this._image.src );
+                        }
                     }
                     this.onFrame( function(){
                         if( this._interval == 0 ){
@@ -974,6 +977,10 @@
                 },
                 setTextAlign:function(pos){
                     this._scripter.css('text-align',pos);
+                },
+                prepareText:function(){
+                    var lines = _fn.slice( arguments , 0 );
+                    
                 },
             }),
 
