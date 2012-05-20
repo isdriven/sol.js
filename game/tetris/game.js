@@ -13,7 +13,7 @@ window.onload = function(){
     ///
 
     var SCREEN_WIDTH = 320;
-    var SCREEN_HEIGHT = 416;
+    var SCREEN_HEIGHT = 480;
 
     ///
     /// preload images
@@ -30,7 +30,7 @@ window.onload = function(){
         // create field
         //
         var field = new sol.field( SCREEN_WIDTH , SCREEN_HEIGHT , { border:"1px solid #ccc"});
-
+        //field.setFieldLandscape();
         //
         // create sufrace ( scene )
         //
@@ -42,16 +42,15 @@ window.onload = function(){
         // Menu bar ( score bar )
         // -*
         SCORE = 0;
-        var Menubar = sol.class( sol.base,{style:{border_radius:5,z_index:20,background_color:'black',color:'white',x:0,y:0,width:320,height:30,border:'1px solid #ddd'}});
+        var Menubar = sol.class( sol.base,{style:{border_radius:5,z_index:20,background_color:'black',color:'white',x:0,y:0,width:SCREEN_WIDTH,height:30,border:'1px solid #ddd'}});
         var menu_bar = new Menubar();
         var title = new sol.label('TETRIS' , 5 , 5 ) ;
         var score = new sol.label('score:' , 120 , 5 );
         var score_number = new sol.label( SCORE , 160 , 5 );
         var now_level = new sol.label('level:1',65 , 5 );
-        var push_button = new sol.button( "reload" ,
-                                          { background_color:'black', color:'white',x:270,y:0,border_radius:3, padding:5, z_index:100,border:'1px solid #ddd'}, 
-                                          function(){
-                                              sol.util.reload();
+        var push_button = new sol.button( "SAVE" ,
+                                          { background_color:'black', color:'white',x:SCREEN_WIDTH-50,y:0,border_radius:3, padding:5, z_index:100,border:'1px solid #ddd'},                                          function(){
+                                              sol.u.reload();
                                           });
         menu_bar.has( push_button );
         menu_bar.has( title );
@@ -66,9 +65,9 @@ window.onload = function(){
         var HR2 = sol.class(sol.label,{style:{font_size:12}});
 
         var start_title = new HR('TETRIS', 100 , 100 );
-        var start_expression = new HR2('テトリスのような落ちゲーム',80,140);
+        var start_expression = new HR2('テトリスのような落ちゲーム',70,140);
         var start_button = new sol.button( "START" , 
-                                           { background_color:'#ccc',color:'black',x:110,y:200,border_radius:10,padding:5,
+                                           { background_color:'#ccc',color:'black',x:115,y:200,border_radius:10,padding:5,
                                              z_index:100,border:'1px solid black',padding_left:20,padding_right:20,},
                                            function(){
                                                start_surface.hide();
@@ -273,13 +272,25 @@ window.onload = function(){
                     }
                     // ゲームオーバー処理
                     // フレーム処理を奪う
-                    this.parent.hackFrame( ((FIELD_CELL.height+1)*(FIELD_CELL.width+2)) , 
-                                           function(){},
-                                           function(t){
-                                               this.stack.fields[((FIELD_CELL.height+1)*(FIELD_CELL.width+2)) - t ] = 1;
-                                               this.stack.drawFields();
-                                           },
-                                           function(){this.stack.freeze();this.freeze();this.moving.clearAll();});
+                    var total_time  = ((FIELD_CELL.height+1)*(FIELD_CELL.width+2))
+                    this.parent.hackFrame({
+                        init:function(){},
+                        action:function(life){
+                            if( life < total_time ){
+                                //this.stack.fields[((FIELD_CELL.height+1)*(FIELD_CELL.width+2)) - t ] = 1;
+                                this.stack.fields[ life ] = 1;
+                                this.stack.drawFields();
+                                return true;
+                            }
+                            return false;
+                        },
+                        finish:function(){
+                            this.stack.freeze();
+                            this.freeze();
+                            this.moving.clearAll();
+                            return false;
+                        }
+                    });
                 },
                 checkLines:function(){
                     var l = (FIELD_CELL.height+1)*(FIELD_CELL.width+2);

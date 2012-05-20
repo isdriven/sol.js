@@ -189,10 +189,10 @@ window.onload = function(){
                     this.css('display','none');
                 },
                 attack1:function(){
-                    this.hackFrame( 15 , 
+                    this.hackFrame( 10 , 
                                     function(){
                                         this.css('display','block');
-                                        this.setCellMotion([0,1,2,3,4] , 3 );
+                                        this.setCellMotion([0,1,2,3,4] , 2 );
                                     },
                                     function(){},
                                     function(){

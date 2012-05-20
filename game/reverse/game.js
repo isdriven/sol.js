@@ -206,6 +206,7 @@ window.onload = function(){
                     this.turns = BLACK;
                 },
                 pressed:function(number){
+                    sol.___( 'number' , number );
                     var dir = this.checkMobility(number , this.turns);
                     if( dir == 0 ){
                         return false;
