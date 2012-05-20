@@ -4,56 +4,98 @@
  *  Category:Game Engine
  *  Authour:Ippei Sato(Ipp)
  *  License:THE MIT LICENSE
- *  Package:sol
- *  Update:2012.03
+ *  Update:2012.05
  *  Url:http://www.sol-js.com
- *  File: core
  *  Javascript Ver: ECMA script 262 5th ~ 
- *  Version: 0.5.3
- *  
+ *  Version: 0.6.0
  * 
  *  This is Game Engine for Javascript.
- *  
  *  Version 0.5  for webkit ONLY.
- * 
- *  SUPPORT:
- *   iOS safari(webkit)
- *   safari(webkit)
- * 
- *  TODO:
- *   continuos map class
- *   accelerration
+ *
+ *  Feel Free For Fork it. 
  */
-
 // ---------
 //   CORE
 // ---------
 (function(){
+    var dumps = {};
     var doc = window.document;
     var _fps = 20;
-/*
-    var requestAnimFrame = (function(){ return  window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame 
-                                        || window.oRequestAnimationFrame || window.msRequestAnimationFrame 
-                                        || function( callback, element){ window.setTimeout(callback, 1000 / 60); };})(),
- */      
-    var requestAnimFrame = ( function(){ return function( callback , element ){ setTimeout( callback , _fps ); } } )(),
-        // functions
+    var beat = ( function(){ return function( callback , element ){ setTimeout( callback , _fps ); } } )(),
+        // basic functions
         _fn = {
-            setFps:function(fps){
-                _fps = ps;
-            },
-            log:function(){ 
-                if(typeof console !== 'undefined' ){ 
-                    for( var i = 0 , l = arguments.length ; i < l ; ++i ){ 
-                        console.log( arguments[i] ); 
-                    } 
+            ___:function(){
+                if( typeof console !== "undefined" ){
+                    if( typeof dumps[arguments[0]] == "undefined" ){
+                        dumps[arguments[0]] = [];
+                    }
+                    dumps[arguments[0]].push( arguments[1] );
                 }
             },
-            id:function(id){ 
-                return doc.getElementById(id); 
+            set:{
+                fps:function(fps){
+                    _fps = ps;
+                },
+                property:function(ele,name,val){ 
+                    if( name == 'x' ){
+                        name = 'left';
+                    }else if( name == 'y'){
+                        name = 'top';
+                    }
+                    ele.style[_fn.string.camelCase(name)] = val; 
+                    return ele
+                },
+                properties:function(ele , list){
+                    list.each( function( k , v ){
+                        _fn.set.property( ele , k , v );
+                    });
+                },
             },
-            name:function(name){ 
-                return doc.getElementsByClassName(name); 
+            get:{
+                id:function(id){ 
+                    return doc.getElementById(id); 
+                },
+                name:function(name){ 
+                    return doc.getElementsByClassName(name); 
+                },
+                computedStyle:function(ele,select){ 
+                    return doc.defaultView.getComputedStyle(ele,select); 
+                },
+                style:function(ele){ 
+                    return _fn.get.computedStyle(ele); 
+                },
+                property:function(ele,name){
+                    if( name == 'x' ){
+                        name = 'left';
+                    }else if( name == 'y'){
+                        name = 'top';
+                    }
+                    return _fn.get.style(ele)[_fn.string.camelCase( name )]; 
+                },
+            },
+            string:{
+                upperCase:function(s){ 
+                    return s.charAt(0).toUpperCase()+s.slice(1); 
+                },
+                camelCase:function(str){ 
+                    var t = 0,ret = ''; 
+                    str.each( function(k,v){
+                        if( v == '-' || v == "_" ){ t = 1; }
+                        else if( t == 1 ){ ret += v.toUpperCase(); t = 0;}
+                        else{ ret += v; }
+                    });
+                    return ret;
+                },
+                trim:function(s){
+                    if( s !== "" && typeof s !== "undefined" ){
+                        return s.replace(/^[\s　]+|[\s　]+$/g, '');                
+                    }else{
+                        return "";
+                    }
+                },
+                isBeginningOf:function(s,n){
+                    return s.indexOf( n ) == 0 ;
+                },
             },
             createElement:function(node){ 
                 return doc.createElement(node); 
@@ -62,41 +104,13 @@
                 parent.appendChild(child); 
                 return parent;
             },
+            addEventListener:function(ele,name,fn,b){ 
+                ele.addEventListener(name,fn,b); return ele; 
+            },
             removeMe:function(myself){ 
                 if( myself !== null && myself.parentNode !== null ){
                     myself.parentNode.removeChild( myself );
                 }
-            },
-            addEventListener:function(ele,name,fn,b){ 
-                ele.addEventListener(name,fn,b); return ele; 
-            },
-            getComputedStyle:function(ele,select){ 
-                return doc.defaultView.getComputedStyle(ele,select); 
-            },
-            getStyle:function(ele){ 
-                return _fn.getComputedStyle(ele); 
-            },
-            getProperty:function(ele,name){
-                if( name == 'x' ){
-                    name = 'left';
-                }else if( name == 'y'){
-                    name = 'top';
-                }
-                return _fn.getStyle(ele)[_fn.camelCase( name )]; 
-            },
-            setProperty:function(ele,name,val){ 
-                if( name == 'x' ){
-                    name = 'left';
-                }else if( name == 'y'){
-                    name = 'top';
-                }
-                ele.style[_fn.camelCase(name)] = val; 
-                return ele
-            },
-            setProperties:function(ele , list){
-                list.each( function( k , v ){
-                    _fn.setProperty( ele , k , v );
-                });
             },
             defineConst:function(obj , name , val ){
                 Object.defineProperty( 
@@ -154,17 +168,8 @@
                 });
                 return target;
             },
-            upperCase:function(s){ 
-                return s.charAt(0).toUpperCase()+s.slice(1); 
-            },
-            camelCase:function(str){ 
-                var t = 0,ret = ''; 
-                str.each( function(k,v){
-                    if( v == '-' || v == "_" ){ t = 1; }
-                    else if( t == 1 ){ ret += v.toUpperCase(); t = 0;}
-                    else{ ret += v; }
-                });
-                return ret;
+            slice:function(l,s,e){ 
+                return Array.prototype.slice.apply( l , [s,e] ); 
             },
             isInt:function(n){
                 return !n.match( /[^0-9\.]/g );
@@ -178,31 +183,12 @@
                 }
                 return s;
             },
-            trim:function(s){
-                if( s !== "" && typeof s !== "undefined" ){
-                    return s.replace(/^[\s　]+|[\s　]+$/g, '');                
-                }else{
-                    return "";
-                }
-            },
-            isBeginningOf:function(s,n){
-                return s.indexOf( n ) == 0 ;
-            },
-            slice:function(l,s,e){ 
-                return Array.prototype.slice.apply( l , [s,e] ); 
-            },
-            frame2position:function(frame,w,h,tw,th){
-                return [ -1*(( frame % ~~(tw/w) ) * w), -1*(~~( frame / ~~(tw/w) ) * h) ] ;
-            },
-            position2frame:function(x,y,w,tw){
-                return x + (y*(~~(tw/w)));
-            },
         };
 
+    // 'each' function to prototype of object
     _fn.defineUnenum( Object.prototype , "each" , function( callback , thisobj ){
         var ret = [];
         for( var e in this ){
-            //ret.push( callback.call( thisobj , e , this[e] ) );
             ret[ret.length] = callback.call( thisobj, e , this[e] );
         }
         return ret;
@@ -210,298 +196,319 @@
     _fn.defineUnenum( Array.prototype , "each"  , function( callback , thisobj ){
         var ret = [];
         for( var i = 0 , l = this.length ; i < l ; ++i ){
-            //ret.push( callback.call( thisobj , this[i] , i  ) );
             ret[ret.length] = callback.call( thisobj , this[i] , i );
         }
         return ret;
     });
-
+    // values and functions
     var _time = 0, _touched = false ,  _moving = false,
         _point_x = null, _point_y = null , _point_dx = null , _point_dy = null,
-
-        // implements
-        im = {
-            empty:function(){},
-            mixin:function( child ){
-                _fn.mixin( this , child );
-            },
-            onFrame:function(f){
-                ( typeof f == "function" ) && ( this._on_frames[this._on_frames.length] = f );
-            },
-            onTouch:function(f){
+        _empty = function(){},
+        _mixin = function( child ){
+            _fn.mixin( this , child );
+        },
+        _onFrame = function(f){
+            ( typeof f == "function" ) && ( this._on_frames[this._on_frames.length] = f );
+        },
+        _onTouch = function(f){
                 ( typeof f == "function" ) && ( this._on_pushes[this._on_pushes.length] = f );
             },
-            onRelease:function(f){
-                ( typeof f == "function" ) && ( this._on_releases[this._on_releases.length] = f );
-            },
-            prepareFrames:function(){ 
-                this._on_frames = [];
-                this._on_pushes = [];
-                this._on_releases = [];
-                this._hacking_frame = null;
-                this._ref = [];
-                this.touched = false;
-                this._touched = false;
-                this._remove_flg = false;
-                this._removed_flg = false;
-                this._ableto_touch = true;
-            },
-            loop:function(ln){
+        _onRelease = function(f){
+            ( typeof f == "function" ) && ( this._on_releases[this._on_releases.length] = f );
+        },
+        _prepareFrames = function(){ 
+            this._on_frames = [];
+            this._on_pushes = [];
+            this._on_releases = [];
+            this._hacking_frame = null;
+            this._hacking_stack = [];
+            this._ref = [];
+            this.touched = false;
+            this._touched = false;
+            this._remove_flg = false;
+            this._removed_flg = false;
+            this._ableto_touch = true;
+        },
+        _loop = function(ln){
                 this._frame(ln);
-            },
-            _frame:function(ln){
-                if( this.counter !== ln && this._freeze == false ){
-                    this.counter = ln ;
-                    this.lifetime++;
-                    var me = this;
-                    this._on_frames.each( function(v){
-                        v.call(me , ln);
-                    });
-                    if( this.touched == true && this._ableto_touch ){
-                        this.touched = false;
-                        this._on_pushes.each( function(v){
-                            v.call(me,ln);
-                        });
-                    }
-                    if( this._hacking_frame == null ){
-                        this.frame(ln);
-                    }else{
-                        if( this._hacking_frame[4] == 0 ){
-                            this._hacking_frame[1].call(me);
-                            this._hacking_frame[4]++;
-                        }else if (this._hacking_frame[4] === this._hacking_frame[0] ){
-                            var finalize = this._hacking_frame[3];
-                            this._hacking_frame = null;
-                            finalize.call(me);
-                        }else{
-                            this._hacking_frame[2].call( me , this._hacking_frame[4] );
-                            this._hacking_frame[4]++;
-                        }
-                    }
-                    
-                    this._ref.each( function(v){
-                        (typeof v !== "undefined" ) && (typeof v["_frame"] !== "undefined" ) && (v._frame(ln));
-                    });
-                }
-            },
-            chainTo:function(parent){
-                ( typeof parent._frame == 'function')
-                    && ( typeof this._frame == 'function')
-                    && ( parent._ref[parent._ref.length] = this )
-                    && ( this.parent = parent );
-            },
-            css:function( name , value ){
-                if( typeof value == 'undefined' ){ // get
-                    if( typeof this._style_cache[name] == 'undefined' ){
-                        if( typeof this.style[name] !== "undefined" ){
-                            // if no cache, need original value.
-                            this._style_cache[name] = this.style[name];
-                        }else{
-                            // if need original , then... get computed value from original css
-                            this._style_cache[name] = _fn.px2int( _fn.getProperty( this._e , name ) );
-                        }
-                    }
-                    return this._style_cache[name];
-                }else{ // set
-                    if( typeof value == 'object'){ 
-                        _fn.setProperties( this._e , value);
-                    }else{
-                        // no touch to original value
-                        _fn.setProperty( this._e , name , value );
-                        this._style_cache[name] = value;
-                    }
-                }
-            },
-            move:function(x,y){
-                if( typeof x !== "undefined" || x !== null ){
-                    this.css('x' , this.css('x') + x );
-                }
-                if( typeof y !== "undefined" || y !== null ){
-                    this.css('y' , this.css('y') + y );
-                }
-            },
-            getTransform:function(index){
-                var transform = this.css('webkit_transform');
-                var transforms = _fn.trim( transform ).split(' ');
-                if( typeof index !== "undefined" ){
-                    var ret = null;
-                    transforms.each( function(v){
-                        if( _fn.isBeginningOf( v , index) ){
-                            ret = v;
-                        }
-                    });
-                    if( ret !== null ){
-                        return ret.replace(index+'(' , '').replace(')','');
-                    }else{
-                        return null;
-                    }
-                }else{
-                    return transforms;
-                }
-            },
-            setTransform:function(index, value){
-                var transforms = this.getTransform();
-                var ret = [], not_have = true;
-                transforms.each( function( v ){
-                    if( _fn.isBeginningOf( v , index ) ){
-                        ret[ ret.length ] = index + '(' + value + ')';
-                        not_have = false;
-                    }else{
-                        ret[ ret.length ] = v;
-                    }
+        },
+        _frame = function(ln){
+            if( this.counter !== ln && this._freeze == false ){
+                this.counter = ln ;
+                this.lifetime++;
+                var me = this;
+                this._on_frames.each( function(v){
+                    v.call(me , ln);
                 });
-                if( not_have ){
-                    ret[ ret.length ] = index + '(' + value + ')';
+                if( this.touched == true && this._ableto_touch ){
+                    this.touched = false;
+                    this._on_pushes.each( function(v){
+                        v.call(me,ln);
+                    });
                 }
-                this.css( 'webkit_transform' , ret.join(' ') );
-            },
-            rotate:function(r){
-                if( typeof r == "undefined" ){
-                    var rotation = this.getTransform( 'rotate' );
-                    if( typeof rotation == "undefined" || rotation == null || rotation == "" ){
-                        return 0;
-                    }else{
-                        return + this.getTransform('rotate').replace('deg','');
-                    }
-                }else{
-                    var sum = this.rotate() + r ;
-                    if( sum > 360 ){
-                        sum -= 360;
-                    }
-                    this.setTransform( 'rotate' , sum + 'deg');
-                }
-            },
-            scale:function(s){
-                if( typeof s == "undefined" ){
-                    var scale = + this.getTransform( 'scale' );
-                    if( typeof scale == "undefined" || scale == null || scale == "" ){
-                        return 0;
-                    }else{
-                        return scale;
-                    }
-                }else{
-                    var sum = this.scale() + s;
-                    if( sum < 0 ){
-                        sum = 0 ;
-                    }
-                    this.setTransform( 'scale' , sum );
-                }
-            },
-            setReflection:function(direction){
-                this.setTransform( 'matrix' , '-1, 0, 0, 1, 0, 0');
-            },
-            opacity:function(o){
-                if( typeof o == "undefined" ){
-                    var opacity = this.css( 'opacity' );
-                    if( typeof opacity == "undefined" || opacity == null || opacity == "" ){
-                        return 0;
-                    }else{
-                        return Math.floor(this.css('opacity')*100);
-                    }
-                }else{
-                    var opacity = ( + this.opacity() );
-                    opacity += o;
-                    if( opacity > 100 ){
-                        opacity = 100;
-                    }else if( opacity < 0 ){
-                        opacity = 0;
-                    }
-                    if( opacity != 0 ){
-                        this.css( 'opacity' , opacity/100 );
-                    }else{
-                        this.css( 'opacity' , 0 );
-                    }
-                }
-            },
-            hackFrame:function( lifetime , initialize , frame , finalize ){
                 if( this._hacking_frame == null ){
-                    this._hacking_frame = [ lifetime , initialize , frame , finalize , 0 ];
+                    this.frame(ln);
+                }else{
+                    if( this._hacking_frame[4] === false ){
+                        this._hacking_frame[0].call(me);
+                        this._hacking_frame[4] = true;
+                    }                        
+                    var do_next = this._hacking_frame[1].call( me , this._hacking_frame[3] );
+                    this._hacking_frame[3]++;
+                    if( do_next === false ){
+                        var finalize = this._hacking_frame[2];
+                        var do_repeat = finalize.call(me);
+                        if( do_repeat === true ){
+                            this._hacking_frame[3] = 0;
+                        }else{
+                            this._hacking_frame = null;
+                            if( this._hacking_stack.length !== 0 ){
+                                this._hacking_frame = this._hacking_stack.shift();
+                            }
+                        }
+                    }
                 }
-            },
-            isHacking:function(){
-                return this._hacking_frame !== null;
-            },
-            createElement:function( node_name ){
-                this._e = _fn.createElement( node_name );
-            },
-            applyStyles:function(){
-                 if( this.style ){
-                    _fn.setProperties( this._e , this.style );
-                }
-            },
-            appendTo:function(parent){
-                ( typeof parent._e != "undefined" && parent._e != null )
-                    && ( typeof this._e != "undefined" && this._e != null )
-                    && ( _fn.appendChild( parent._e , this._e ));
-            },
-            hide:function(){
-                this.css( 'display' , 'none' );
-            },
-            show:function(){
-                this.css( 'display' , 'block' );
-            },
-            setEvents:function(){
-                var target = this;
-                if( this._e ){
-                    _fn.addEventListener( this._e , "touchstart" , function(e){
-                        if( this._hacking_frame == null ){
-                            target.touched = true;
-                        }
-                    });
-                    _fn.addEventListener( this._e , "touchend" , function(e){
-                        if( this._hacking_frame == null ){
-                            target.touched = false;
-                        }
-                    });
-                    _fn.addEventListener( this._e , "mousedown" , function(e){
-                        if( this._hacking_frame == null ){
-                            target.touched = true;
-                        }
-                    });
-                    _fn.addEventListener( this._e , "mouseup" , function(e){
-                        if( this._hacking_frame == null ){
-                            target.touched = false;
-                        }
-                    });
-                }
-            },
-            setFieldEvents:function(){
-                _fn.addEventListener( this._e , "touchstart" , function(e){
-                    _touched = true;
-                    _point_x = e.touches[0].pageX, _point_y = e.touches[0].pageY;
-                    e.preventDefault();
+                
+                this._ref.each( function(v){
+                    (typeof v !== "undefined" ) && (typeof v["_frame"] !== "undefined" ) && (v._frame(ln));
                 });
-                _fn.addEventListener( this._e , "touchmove" , function(e){
-                    _moving = true;
-                    _point_dx = e.touches[0].pageX - _point_x , _point_dy = e.touches[0].pageY - _point_y;
-                    e.preventDefault();
+            }
+        },
+        _chainTo = function(parent){
+            ( typeof parent._frame == 'function')
+                && ( typeof this._frame == 'function')
+                && ( parent._ref[parent._ref.length] = this )
+                && ( this.parent = parent );
+        },
+        _css = function( name , value ){
+            if( typeof value == 'undefined' ){ // get
+                if( typeof this._style_cache[name] == 'undefined' ){
+                    if( typeof this.style[name] !== "undefined" ){
+                        // if no cache, need original value.
+                        this._style_cache[name] = this.style[name];
+                    }else{
+                        // if need original , then... get computed value from original css
+                        this._style_cache[name] = _fn.px2int( _fn.get.property( this._e , name ) );
+                    }
+                }
+                return this._style_cache[name];
+            }else{ // set
+                if( typeof value == 'object'){ 
+                    _fn.set.properties( this._e , value);
+                }else{
+                    // no touch to original value
+                    _fn.set.property( this._e , name , value );
+                    this._style_cache[name] = value;
+                }
+            }
+        },
+        _move = function(x,y){
+            if( typeof x !== "undefined" || x !== null ){
+                this.css('x' , this.css('x') + x );
+            }
+            if( typeof y !== "undefined" || y !== null ){
+                this.css('y' , this.css('y') + y );
+            }
+        },
+        _getTransform = function(index){
+            var transform = this.css('webkit_transform');
+            var transforms = _fn.string.trim( transform ).split(' ');
+            if( typeof index !== "undefined" ){
+                var ret = null;
+                transforms.each( function(v){
+                    if( _fn.string.isBeginningOf( v , index) ){
+                        ret = v;
+                    }
+                });
+                if( ret !== null ){
+                    return ret.replace(index+'(' , '').replace(')','');
+                }else{
+                    return null;
+                }
+            }else{
+                return transforms;
+            }
+        },
+        _setTransform = function(index, value){
+            var transforms = this.getTransform();
+            var ret = [], not_have = true;
+            transforms.each( function( v ){
+                if( _fn.string.isBeginningOf( v , index ) ){
+                    ret[ ret.length ] = index + '(' + value + ')';
+                    not_have = false;
+                }else{
+                    ret[ ret.length ] = v;
+                }
+            });
+            if( not_have ){
+                ret[ ret.length ] = index + '(' + value + ')';
+            }
+            this.css( 'webkit_transform' , ret.join(' ') );
+        },
+        _rotate = function(r){
+            if( typeof r == "undefined" ){
+                var rotation = this.getTransform( 'rotate' );
+                if( typeof rotation == "undefined" || rotation == null || rotation == "" ){
+                    return 0;
+                }else{
+                    return + this.getTransform('rotate').replace('deg','');
+                }
+            }else{
+                var sum = this.rotate() + r ;
+                if( sum > 360 ){
+                    sum -= 360;
+                }
+                this.setTransform( 'rotate' , sum + 'deg');
+            }
+        },
+        _scale = function(s){
+            if( typeof s == "undefined" ){
+                var scale = + this.getTransform( 'scale' );
+                if( typeof scale == "undefined" || scale == null || scale == "" ){
+                    return 0;
+                }else{
+                    return scale;
+                }
+            }else{
+                var sum = this.scale() + s;
+                if( sum < 0 ){
+                    sum = 0 ;
+                }
+                this.setTransform( 'scale' , sum );
+            }
+        },
+        _setReflection = function(direction){
+            this.setTransform( 'matrix' , '-1, 0, 0, 1, 0, 0');
+        },
+        _opacity = function(o){
+            if( typeof o == "undefined" ){
+                var opacity = this.css( 'opacity' );
+                if( typeof opacity == "undefined" || opacity == null || opacity == "" ){
+                    return 0;
+                }else{
+                    return Math.floor(this.css('opacity')*100);
+                }
+            }else{
+                var opacity = ( + this.opacity() );
+                opacity += o;
+                if( opacity > 100 ){
+                    opacity = 100;
+                }else if( opacity < 0 ){
+                    opacity = 0;
+                }
+                if( opacity != 0 ){
+                    this.css( 'opacity' , opacity/100 );
+                }else{
+                    this.css( 'opacity' , 0 );
+                }
+            }
+        },
+        _hackFrame = function( hack ){
+            if( this._hacking_frame == null ){
+                this._hacking_frame = [ 
+                    hack.init , 
+                    hack.action , 
+                    hack.finish , 
+                    0 , false ];
+            }else{
+                this._hacking_stack[this._hacking_stack.length] = [
+                    hack.init , 
+                    hack.action , 
+                    hack.finish , 
+                    0 , false ];
+            }
+            ss = this._hacking_frame;
+        },
+        _stackingFrame = function( ){
+
+        },
+        _fire = function(){
+            
+        },
+        _isHacking = function(){
+            return this._hacking_frame !== null;
+        },
+        _createElement = function( node_name ){
+            this._e = _fn.createElement( node_name );
+        },
+        _applyStyles = function(){
+            if( this.style ){
+                _fn.set.properties( this._e , this.style );
+            }
+        },
+        _appendTo = function(parent){
+            ( typeof parent._e != "undefined" && parent._e != null )
+                && ( typeof this._e != "undefined" && this._e != null )
+                && ( _fn.appendChild( parent._e , this._e ));
+        },
+        _hide = function(){
+            this.css( 'display' , 'none' );
+        },
+        _show = function(){
+            this.css( 'display' , 'block' );
+        },
+        _setEvents = function(){
+            var target = this;
+            if( this._e ){
+                _fn.addEventListener( this._e , "touchstart" , function(e){
+                    if( this._hacking_frame == null ){
+                        target.touched = true;
+                    }
                 });
                 _fn.addEventListener( this._e , "touchend" , function(e){
-                    _touched = _moving = false;
-                    e.preventDefault();
+                    if( this._hacking_frame == null ){
+                        target.touched = false;
+                    }
                 });
                 _fn.addEventListener( this._e , "mousedown" , function(e){
-                    _touched = true;
-                    _point_x = e.pageX, _point_y = e.pageY;
-                });
-                _fn.addEventListener( this._e , "mousemove" , function(e){
-                    if( _touched ){
-                        _moving = true;
-                        _point_dx = e.pageX - _point_x , _point_dy = e.pageY - _point_y;
-                        //console.log( _touched , _point_dx , _point_dy );
+                    if( this._hacking_frame == null ){
+                        target.touched = true;
                     }
                 });
                 _fn.addEventListener( this._e , "mouseup" , function(e){
-                    _touched = _moving = false;
+                    if( this._hacking_frame == null ){
+                        target.touched = false;
+                    }
                 });
-            },
-            getCenter:function(){
-                return [this.css('x') + this.style.width/2,this.css('y') + this.style.height/2 ];
-            },
+            }
         },
+        _setFieldEvents = function(){
+            _fn.addEventListener( this._e , "touchstart" , function(e){
+                _touched = true;
+                _point_x = e.touches[0].pageX, _point_y = e.touches[0].pageY;
+                e.preventDefault();
+            });
+            _fn.addEventListener( this._e , "touchmove" , function(e){
+                _moving = true;
+                _point_dx = e.touches[0].pageX - _point_x , _point_dy = e.touches[0].pageY - _point_y;
+                e.preventDefault();
+            });
+            _fn.addEventListener( this._e , "touchend" , function(e){
+                _touched = _moving = false;
+                e.preventDefault();
+            });
+            _fn.addEventListener( this._e , "mousedown" , function(e){
+                _touched = true;
+                _point_x = e.pageX, _point_y = e.pageY;
+            });
+            _fn.addEventListener( this._e , "mousemove" , function(e){
+                if( _touched ){
+                    _moving = true;
+                    _point_dx = e.pageX - _point_x , _point_dy = e.pageY - _point_y;
+                    //console.log( _touched , _point_dx , _point_dy );
+                }
+            });
+            _fn.addEventListener( this._e , "mouseup" , function(e){
+                _touched = _moving = false;
+            });
+        },
+        _getCenter = function(){
+            return [this.css('x') + this.style.width/2,this.css('y') + this.style.height/2 ];
+        },
+
         _system = function(){
-            this.mixin = im.mixin,
-            this.init = im.empty,
+            this.mixin = _mixin,
+            this.init = _empty,
 
             // frames
             this.counter = 0,
@@ -509,42 +516,41 @@
             this._on_pushes = [],
             this._on_releases = [],
             this._ref = [],
-            this.onFrame = im.onFrame,
-            this.onTouch = im.onTouch,
-            //this.onRelease = im.onRelease,
-            this.prepareFrames = im.prepareFrames;
-            this.loop = im.loop;
-            this._frame = im._frame;
-            this.chainTo = im.chainTo;
-            this.frame = im.empty;
+            this.onFrame = _onFrame,
+            this.onTouch = _onTouch,
+            this.prepareFrames = _prepareFrames; // prepear local variable
+            this.loop = _loop;
+            this._frame = _frame;
+            this.chainTo = _chainTo;
+            this.frame = _empty;
 
             // styles
             this.style = {},
             this._e = null,
-            this.css = im.css;
-            this.move = im.move;
-            this.rotate = im.rotate;
-            this.scale = im.scale;
-            this.opacity = im.opacity;
-            this.hackFrame = im.hackFrame;
-            this.isHacking = im.isHacking;
-            this.getTransform = im.getTransform;
-            this.setTransform = im.setTransform;
-            this.createElement = im.createElement;
-            this.applyStyles = im.applyStyles;
-            this.appendTo = im.appendTo;
-            this.setReflection = im.setReflection;
-            this.hide = im.hide;
-            this.show = im.show;
+            this.css = _css;
+            this.move = _move;
+            this.rotate = _rotate;
+            this.scale = _scale;
+            this.opacity = _opacity;
+            this.hackFrame = _hackFrame;
+            this.isHacking = _isHacking;
+            this.getTransform = _getTransform;
+            this.setTransform = _setTransform;
+            this.createElement = _createElement;
+            this.applyStyles = _applyStyles;
+            this.appendTo = _appendTo;
+            this.setReflection = _setReflection;
+            this.hide = _hide;
+            this.show = _show;
             // events
-            this.setEvents = im.setEvents;
+            this.setEvents = _setEvents;
             // field_events
-            this.setFieldEvents = im.setFieldEvents;
-            this.getCenter = im.getCenter;
+            this.setFieldEvents = _setFieldEvents;
+            this.getCenter = _getCenter;
         };
-        // classes
+    // classes
     var __class = _fn.class( new _system() ),
-
+        
         _field_class = _fn.class(
             __class,
             {
@@ -626,8 +632,12 @@
             __class,
             {
                 style:{},
+                beforeInit:function(){},
+                afterInit:function(){},
                 init:function(){
+                    this.beforeInit();
                     this.initialize();
+                    this.afterInit();
                 },
                 initialize:function(){
                     if( typeof this.node == "undefined" ){
@@ -661,10 +671,7 @@
                 },
                 frame:function(){},
                 remove:function(){
-                    for( var i = 0 , l = this._ref.length ; i < l ; ++i ){
-                        this._ref[i].remove();
-                        delete this._ref[i];
-                    }
+                    this.removeAllChildren();
                     _fn.removeMe( this._e );
                 },
                 removeAllChildren:function(){
@@ -797,7 +804,7 @@
                     this.css('background_image' , 'url('+path+')');
                 },
                 setCellFrame:function( frame ){
-                    var pos = _fn.frame2position( frame , this.style.width , this.style.height , this._image.width , this._image.height );
+                    var pos = _util.frame2position( frame , this.style.width , this.style.height , this._image.width , this._image.height );
                     this.setCellPosition( pos[0] , pos[1] );
                 },
                 setCellPosition:function( x , y ){
@@ -834,7 +841,7 @@
                 },
                 drawImage:function( name , frame , x , y ){
                     var image = _images[name];
-                    var pos = _fn.frame2position( frame , this.cell.width , this.cell.height , image.width , image.height );
+                    var pos = _util.frame2position( frame , this.cell.width , this.cell.height , image.width , image.height );
                     this._ctx.drawImage( image , pos[0]*-1, pos[1]*-1 , this.cell.width , this.cell.height , x , y , this.cell.width , this.cell.height );
                 },
                 clearAll:function(){
@@ -909,6 +916,8 @@
             {
                 _background:null,
                 line:1,
+                _lines:null,
+                lines:null,
                 scripterInitialize:function(has_background){
                     (typeof has_background == "undefined" ) && ( has_background = true );
                     this.initialize();
@@ -938,25 +947,34 @@
                     this._scripter.css('line_height' , '16px' );
                     this.has( this._scripter );
                 },
-                addText:function(text,speed){ // append text
+                addText:function(text,fn,speed){ // append text
                     var len = text.length;
                     var texter = null;
-                    this.hackFrame( (len+1) , 
-                                  function(){
-                                      texter = _util.createTextChara( text );
-                                  },
-                                  function(t){
-                                      var charas = texter();                                      
-                                      if( charas !== false ){
-                                          this.appendText( charas );
-                                      }
-                                  },
-                                  function(){
-
-                                  });
+                    this.hackFrame({ 
+                        init:function(){
+                            texter = _util.createTextChara( text );
+                        },
+                        action:function(t){
+                            var charas = texter();                                      
+                            if( charas !== false ){
+                                this.appendText( charas );
+                                return true;
+                            }else{
+                                return false;
+                            }
+                        },
+                        finish:function(){
+                            (typeof fn == "function" ) && ( fn() );
+                            return false;
+                        }
+                    });
                     return this;
                 },
                 addNewLine:function(){
+                    this.scrollLine();
+                    this.appendText('<br />');
+                },
+                scrollLine:function(){
                     var font_size = this._scripter.css('font-size'),
                         height = this.css('height'),
                         line_height = this._scripter.css('line-height'),
@@ -967,7 +985,6 @@
                         this._scripter.css('margin-top' , -1*(line_height*(this.line-max_line)));
                         this._scripter.css('height' , height+(line_height*(this.line-max_line)));
                     }
-                    this.appendText('<br />');
                 },
                 clearText:function(){ // clear field
                     this._scripter._e.innerHTML = "";
@@ -978,9 +995,38 @@
                 setTextAlign:function(pos){
                     this._scripter.css('text-align',pos);
                 },
-                prepareText:function(){
-                    var lines = _fn.slice( arguments , 0 );
-                    
+                clearLines:function(){
+                    this._lines = null;
+                    this.lines = null;
+                },
+                prepareLines:function(){
+                    this._lines = _fn.slice( arguments , 0 );
+                    this.lines = this._lines;
+                },
+                rewindLines:function(){
+                    this.lines = this._lines;
+                },
+                nextLine:function(fn){
+                    var line = this.lines.shift();
+                    var t = this;
+                    if( typeof line !== "undefined" ){
+                        if( line.indexOf( '@' ) < 0 ){
+                            this.addText( line , function(){
+                                t.addNewLine();
+                                (typeof fn == "function" ) && ( fn() );
+                            });
+                        }else{
+                            var sub_lines = line.split('@');
+                            sub_lines.each( function(v){
+                                t.addText( v , function(){
+                                    t.addNewLine();
+                                });
+                            });
+                        }
+                    }
+                },
+                setFontColor:function(c){
+                    this._scripter.css('color' , c );
                 },
             }),
 
@@ -995,12 +1041,19 @@
                     }
                 }
             };
-        };
+        },
 
 
         // utilities
     
         _util = {
+            frame2position:function(frame,w,h,tw,th){
+                return [ -1*(( frame % ~~(tw/w) ) * w), -1*(~~( frame / ~~(tw/w) ) * h) ] ;
+            },
+            position2frame:function(x,y,w,tw){
+                return x + (y*(~~(tw/w)));
+            },
+
             redirect:function(url){
                 location.href = url;
             },
@@ -1184,6 +1237,9 @@
                 }
                 return ret;
             },
+            createStack:function(){
+                
+            },
             /* on testing
             connectSocket:function(url,data,recieve){
                 var s = new WebSocket(url);
@@ -1245,7 +1301,7 @@
     var _ready = false ;
 
     var _ready_waiting = function(){
-        if( _pre_loading == _pre_loaded && _ready == false ){
+        if( _ready == false && _pre_loading == _pre_loaded ){
             _ready_body();
             _ready = true;
             //console.log( _pre_loaded + '/' + _pre_loading );
@@ -1257,11 +1313,12 @@
     sol = {};
     _fn.mixin( sol , _fn );
 
+    sol.dumps = dumps;
     sol.loop = function(f){
         _loop_body = function(){
             f(_time);
             _time++;
-            requestAnimFrame( _loop_body );
+            beat( _loop_body );
         };
     };
 
@@ -1297,7 +1354,6 @@
         return false;
     };
 
-    sol.f = _fn;
     sol.field = _field_class;
     sol.base = _base_class;
     sol.sprite = _sprite_class;
@@ -1311,5 +1367,3 @@
     sol.util = _util;
     sol.u = _util;
 })();
-
-
